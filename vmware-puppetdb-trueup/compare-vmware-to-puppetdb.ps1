@@ -3,14 +3,16 @@ param (
     [String]$VMwareUserName,
     [SecureString]$VMwarePassword,
     [String]$VMwareCluster = 'operations2',
-    [String]$PupppetServer = 'https://puppet.ops.puppetlabs.net',
-    [Sstring]$Token = $(Get-Content -Path "$HOME/.puppetlabs/token" -ErrorAction SilentlyContinue)
+    [String]$PuppetServer = 'https://puppet.ops.puppetlabs.net',
+    [String]$Token = $(Get-Content -Path "$HOME/.puppetlabs/token" -ErrorAction SilentlyContinue),
 )
 
 if ($PuppetServer -match 'https://') {
     $port = 8081
+    $SkipCertificateCheck = true
 } else {
     $port = 8080
+    $SkipCertificateCheck = false
 }
 $pdb_api = "${PuppetServer}:${port}/pdb/query/v4"
 
@@ -47,7 +49,11 @@ foreach ($vm in $VMS) {
     }
 
     $mac_query = @{query = "inventory[certname]{ facts.networking.mac = '$($nic.MacAddress)' order by certname }" } | ConvertTo-Json
-    $mac_results = Invoke-RestMethod -Method Post -Uri ${pdb_api} -Headers $headers -Body $mac_query -SkipCertificateCheck
+    if ($SkipCertificateCheck) {
+        $mac_results = Invoke-RestMethod -Method Post -Uri ${pdb_api} -Headers $headers -Body $mac_query -SkipCertificateCheck
+    } else {
+        $mac_results = Invoke-RestMethod -Method Post -Uri ${pdb_api} -Headers $headers -Body $mac_query
+    }
     
     if ($mac_results.length -gt 0) {
         $result_object.FoundInPuppetDB = $true
