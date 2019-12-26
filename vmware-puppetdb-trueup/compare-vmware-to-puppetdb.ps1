@@ -4,18 +4,28 @@ param (
     [SecureString]$VMwarePassword,
     [String]$VMwareCluster = 'operations2',
     [String]$PupppetServer = 'https://puppet.ops.puppetlabs.net',
-    [Sstring]$Token = $(Get-Content -Path "$HOME/.puppetlabs/token")
+    [Sstring]$Token = $(Get-Content -Path "$HOME/.puppetlabs/token" -ErrorAction SilentlyContinue)
 )
 
-$pdb_api = "${PupppetServer}:8081/pdb/query/v4"
+if ($PuppetServer -match 'https://') {
+    $port = 8081
+} else {
+    $port = 8080
+}
+$pdb_api = "${PuppetServer}:${port}/pdb/query/v4"
 
 $headers = @{
     'Content-Type'     = 'application/json'
-    'X-Authentication' = ${Token}
+}
+if ($Token) {
+    $headers += @{'X-Authentication' = ${Token}}
 }
 
-$creds = New-Object System.Management.Automation.PSCredential($VMwareUserName, $VMwarePassword)
-
+if ($VMwareUserName -and $VMwarePassword) {
+    $creds = New-Object System.Management.Automation.PSCredential($VMwareUserName, $VMwarePassword)
+} else {
+    $creds = Get-Credential -Message "Enter your vCenter credentials" -UserName "$($VMwareUserName)"
+}
 Connect-VIServer -Server $VirtualCenter -Credential $creds
 
 $VMS = Get-Cluster -Name $VMwareCluster | Get-VM | Where-Object { $_.PowerState -eq 'PoweredOn' } 
