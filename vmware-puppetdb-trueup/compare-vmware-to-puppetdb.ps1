@@ -17,7 +17,7 @@ if ($PuppetServer -match 'https://') {
 $pdb_api = "${PuppetServer}:${port}/pdb/query/v4"
 
 $headers = @{
-    'Content-Type'     = 'application/json'
+    'Content-Type' = 'application/json'
 }
 if ($Token) {
     $headers += @{'X-Authentication' = ${Token}}
