@@ -4,7 +4,7 @@ param (
     [SecureString]$VMwarePassword,
     [String]$VMwareCluster = 'operations2',
     [String]$PuppetServer = 'https://puppet.ops.puppetlabs.net',
-    [String]$Token = $(Get-Content -Path "$HOME/.puppetlabs/token" -ErrorAction SilentlyContinue),
+    [String]$Token = $(Get-Content -Path "$HOME/.puppetlabs/token" -ErrorAction SilentlyContinue)
 )
 
 if ($PuppetServer -match 'https://') {
