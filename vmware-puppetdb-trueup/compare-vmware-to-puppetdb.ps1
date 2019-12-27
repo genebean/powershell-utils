@@ -9,7 +9,7 @@ param (
 
 if ($PuppetServer -match 'https://') {
     $port = 8081
-    $SkipCertificateCheck = true
+    $SkipCertificateCheck = $true
 } else {
     $port = 8080
     $SkipCertificateCheck = false
