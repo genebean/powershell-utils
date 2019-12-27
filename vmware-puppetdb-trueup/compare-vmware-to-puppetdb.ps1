@@ -12,7 +12,7 @@ if ($PuppetServer -match 'https://') {
     $SkipCertificateCheck = $true
 } else {
     $port = 8080
-    $SkipCertificateCheck = false
+    $SkipCertificateCheck = $false
 }
 $pdb_api = "${PuppetServer}:${port}/pdb/query/v4"
 
